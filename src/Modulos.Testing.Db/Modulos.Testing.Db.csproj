@@ -37,7 +37,11 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Modulos.Testing" Version="0.1.2" />
+    <PackageReference Include="Modulos.Testing" Version="0.1.3" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\modulos.testing\src\Modulos.Testing\Modulos.Testing.csproj" />
   </ItemGroup>
 
 </Project>

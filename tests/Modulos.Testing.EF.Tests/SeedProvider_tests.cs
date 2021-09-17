@@ -41,21 +41,21 @@ namespace Modulos.Testing.EF.Tests
         }
 
        
-        [ModelDefinition]
+        [ModelDefinition(true)]
         private class Model1
         {
             [InlineData]
             public static User User1 => new User();
         }
 
-        [ModelDefinition]
+        [ModelDefinition(true)]
         private class Model2
         {
             [InlineData]
             public static User User1 => new User();
         }
 
-        [ModelDefinition]
+        [ModelDefinition(true)]
         private class Model1Model2
         {
             [IncludeModel]
@@ -67,7 +67,7 @@ namespace Modulos.Testing.EF.Tests
         }
 
 
-        [ModelDefinition]
+        [ModelDefinition(true)]
         private class RootModel
         {
             [InlineData]
@@ -87,7 +87,7 @@ namespace Modulos.Testing.EF.Tests
             };
         }
 
-        [ModelDefinition]
+        [ModelDefinition(true)]
         private class AnotherRootModel
         {
             [InlineData]

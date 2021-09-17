@@ -12,7 +12,7 @@ namespace Modulos.Testing
         #region Fields
 
         private readonly object locker = new object();
-        private  readonly List<object> excludedObjects = new List<object>();
+        private readonly List<object> excludedObjects = new List<object>();
         private readonly List<ModelDefinition> models = new List<ModelDefinition>();
 
         public IEnumerable<object> ExcludedObjects
@@ -22,12 +22,12 @@ namespace Modulos.Testing
                 lock (locker) return excludedObjects;
             }
         }
-       
+
         public IEnumerable<ModelDefinition> Model
         {
             get
             {
-                lock (locker) return models.AsReadOnly();//.Select(e => e.ClassType);
+                lock (locker) return models.AsReadOnly(); //.Select(e => e.ClassType);
             }
         }
 
@@ -37,7 +37,7 @@ namespace Modulos.Testing
 
         public ISeedProvider Add<TModel>() where TModel : class
         {
-            return AddInternal(typeof(TModel));
+            return AddInternal(typeof(TModel), true);
         }
 
         public ISeedProvider ExcludeObjects(params object[] objects)
@@ -53,7 +53,7 @@ namespace Modulos.Testing
         public abstract Task DropAndCreateDb();
 
         public abstract Task Seed();
-       
+
         protected IEnumerable<EntityWithOperation> GetEntitiesWithOperationFromClass(Type source)
         {
             var excluded = ExcludedObjects.ToArray();
@@ -98,26 +98,29 @@ namespace Modulos.Testing
             return entities.Where(e => !excluded.Contains(e.Entity)).ToArray();
         }
 
-        private ISeedProvider AddInternal(Type modelType)
+        private ISeedProvider AddInternal(Type modelType, bool includeMode)
         {
             var attr = modelType.GetCustomAttribute<ModelDefinitionAttribute>();
 
-            if (attr == null)
-                throw new ArgumentException($"{modelType.Name} is not marked with {nameof(ModelDefinitionAttribute)}.");
-
-            var model = new ModelDefinition(modelType);
-
-            if (models.Contains(model))
-                throw new Exception($"Model: {model} already exists.");
-
-            models.Add(model);
-
-            var nested = modelType.GetNestedTypes()
-                .Where(e => e.GetCustomAttribute<ModelDefinitionAttribute>() != null);
-
-            foreach (var nestedModel in nested)
+            if (includeMode && !attr.IsRootDefinition)
             {
-                AddInternal(nestedModel);
+                if (attr == null)
+                    throw new ArgumentException($"{modelType.Name} is not marked with {nameof(ModelDefinitionAttribute)}.");
+
+                var model = new ModelDefinition(modelType);
+
+                if (models.Contains(model))
+                    throw new Exception($"Model: {model} already exists.");
+
+                models.Add(model);
+
+                var nested = modelType.GetNestedTypes()
+                    .Where(e => e.GetCustomAttribute<ModelDefinitionAttribute>() != null);
+
+                foreach (var nestedModel in nested)
+                {
+                    AddInternal(nestedModel, includeMode);
+                }
             }
 
             var included = modelType.GetFields(BindingFlags.Public | BindingFlags.Static | BindingFlags.FlattenHierarchy)
@@ -136,11 +139,11 @@ namespace Modulos.Testing
 
             foreach (var toInclude in included)
             {
-                AddInternal(toInclude);
+                AddInternal(toInclude, true);
             }
+
             return this;
         }
-
 
         #region Nested types
 
@@ -157,6 +160,5 @@ namespace Modulos.Testing
         }
 
         #endregion
-
     }
 }
