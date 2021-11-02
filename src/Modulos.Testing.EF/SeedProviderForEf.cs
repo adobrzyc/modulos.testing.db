@@ -1,33 +1,30 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Reflection;
-using System.Threading.Tasks;
-using Microsoft.EntityFrameworkCore;
-
+﻿// ReSharper disable StaticMemberInGenericType
 // ReSharper disable UnusedType.Global
 
 namespace Modulos.Testing.EF
 {
-    public class SeedProviderForEf<TContext> : SeedProviderBase 
-        where TContext:DbContext
+    using System;
+    using System.Collections.Concurrent;
+    using System.Collections.Generic;
+    using System.Data;
+    using System.Data.Common;
+    using System.IO;
+    using System.Linq;
+    using System.Reflection;
+    using System.Threading.Tasks;
+    using Microsoft.EntityFrameworkCore;
+
+    public class SeedProviderForEf<TContext> : SeedProviderBase
+        where TContext : DbContext
     {
-        #region Fields
-
-        private TContext Context { get; }
-
-        public override object GetDb()
-        {
-            return Context;
-        }
-
-        #endregion
+        private static ConcurrentBag<string> _log = new();
 
         public SeedProviderForEf(TContext context)
         {
             Context = context ?? throw new ArgumentNullException(nameof(context));
         }
+
+        private TContext Context { get; }
 
         public override async Task DropAndCreateDb()
         {
@@ -47,6 +44,10 @@ namespace Modulos.Testing.EF
             }
         }
 
+        public override object GetDb()
+        {
+            return Context;
+        }
 
         private async Task HandlePropsAsEntities(Type classType, IReadOnlyDictionary<Type, dynamic> dbsets)
         {
@@ -55,13 +56,10 @@ namespace Modulos.Testing.EF
             foreach (var entityWithOperation in entityWithOperations)
             {
                 //var entity = cloner.Clone(entityWithOperation.Entity);
-                var entity = entityWithOperation.Entity;//cloner.Clone(entityWithOperation.Entity);
+                var entity = entityWithOperation.Entity; //cloner.Clone(entityWithOperation.Entity);
                 var operation = entityWithOperation.Operation;
 
-                if (!dbsets.TryGetValue(entity.GetType(), out var dbset))
-                {
-                    throw new ApplicationException($"Unable to determine DbSet for entity: {entity.GetType().FullName}");
-                }
+                if (!dbsets.TryGetValue(entity.GetType(), out var dbset)) throw new ApplicationException($"Unable to determine DbSet for entity: {entity.GetType().FullName}");
 
                 try
                 {
@@ -89,7 +87,7 @@ namespace Modulos.Testing.EF
                         case OperationKind.Delete:
                             throw new ApplicationException($"Unable to invoke: {nameof(DbSet<object>.Remove)}.", e);
                         case OperationKind.Update:
-                            throw new ApplicationException($"Unable to invoke: Context.Entry(entity).State = EntityState.Modified.", e);
+                            throw new ApplicationException("Unable to invoke: Context.Entry(entity).State = EntityState.Modified.", e);
                     }
                 }
             }
@@ -98,9 +96,8 @@ namespace Modulos.Testing.EF
 
             foreach (var entityEntry in Context.ChangeTracker.Entries().ToArray())
                 entityEntry.State = EntityState.Detached;
-            
-            Context.ClearLocals();
 
+            Context.ClearLocals();
         }
 
         private async Task HandleFieldsAsScripts(Type classType)
@@ -123,6 +120,7 @@ namespace Modulos.Testing.EF
 
                 if (script.InlineAttr != null)
                 {
+                    _log.Add($"{Environment.NewLine}#Inline: {value}{Environment.NewLine}");
                     var sql = value;
                     await ExecuteSql(sql, script.InlineAttr.Splitter);
                     continue;
@@ -130,6 +128,7 @@ namespace Modulos.Testing.EF
 
                 if (script.ScripstAttr != null)
                 {
+                    _log.Add($"{Environment.NewLine}#File: {value}{Environment.NewLine}");
                     var sql = File.ReadAllText(value);
                     await ExecuteSql(sql, script.ScripstAttr.Splitter);
                     continue;
@@ -137,34 +136,56 @@ namespace Modulos.Testing.EF
 
                 if (script.DirectoriesAttr != null)
                 {
-                    foreach (var sql in Directory.GetFiles(value).Select(File.ReadAllText))
-                    {
-                        await ExecuteSql(sql,script.DirectoriesAttr.Splitter);
-                    }
+                    _log.Add($"{Environment.NewLine}#Directory: {value}{Environment.NewLine}");
+                    foreach (var sql in Directory.GetFiles(value)
+                        .OrderBy(Path.GetFileName)
+                        .Select(File.ReadAllText))
+                        await ExecuteSql(sql, script.DirectoriesAttr.Splitter);
                 }
             }
+
+            _log = new ConcurrentBag<string>();
         }
+
 
         private async Task ExecuteSql(string sql, string splitter)
         {
+            DbConnection connection = null;
             try
             {
+                _log.Add(sql);
+                connection = Context.Database.GetDbConnection();
+                if (connection.State != ConnectionState.Open) await connection.OpenAsync().ConfigureAwait(false);
                 if (string.IsNullOrEmpty(splitter))
-                {
-                    await Context.Database.ExecuteSqlRawAsync(sql);
-                }
+                    await ExecuteSqlViaCommand(connection, sql).ConfigureAwait(false);
                 else
-                {
-                    foreach (var sqlToExecute in sql.Split(new[] {splitter}, StringSplitOptions.RemoveEmptyEntries))
-                    {
-                        await Context.Database.ExecuteSqlRawAsync(sqlToExecute.Trim());
-                    }
-                }
+                    foreach (var sqlToExecute in sql.Split(new[] { splitter }, StringSplitOptions.RemoveEmptyEntries))
+                        await ExecuteSqlViaCommand(connection, sqlToExecute).ConfigureAwait(false);
             }
             catch (Exception e)
             {
-                throw new ApplicationException("Script execution exception.", e);
+                var msg = "DB: " + (connection?.Database ?? "")
+                                 + Environment.NewLine
+                                 + "CS: " + (connection?.ConnectionString ?? "")
+                                 + Environment.NewLine
+                                 + "Exception:"
+                                 + Environment.NewLine + e
+                                 + "SQL:"
+                                 + Environment.NewLine + sql;
+
+
+                msg += $"{Environment.NewLine}~~~~~~LOGS~~~~~~{Environment.NewLine}" +
+                       $"{string.Join($"{Environment.NewLine}--------------------------------------{Environment.NewLine}", _log)}";
+
+                throw new ApplicationException($"Script execution exception. INFO: {Environment.NewLine}{msg}", e);
             }
+        }
+
+        private static async Task ExecuteSqlViaCommand(DbConnection connection, string sql)
+        {
+            using var cmd = connection.CreateCommand();
+            cmd.CommandText = sql;
+            await cmd.ExecuteNonQueryAsync().ConfigureAwait(false);
         }
     }
 }

@@ -1,15 +1,15 @@
-﻿using System;
-
-namespace Modulos.Testing
+﻿namespace Modulos.Testing
 {
+    using System;
+
     public sealed class ModelDefinition : IEquatable<ModelDefinition>
     {
-        public Type ClassType { get; }
-
         public ModelDefinition(Type classType)
         {
             ClassType = classType ?? throw new ArgumentNullException(nameof(classType));
         }
+
+        public Type ClassType { get; }
 
         public bool Equals(ModelDefinition other)
         {

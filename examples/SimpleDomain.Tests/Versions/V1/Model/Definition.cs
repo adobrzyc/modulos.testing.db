@@ -1,9 +1,10 @@
-﻿using System;
-using Modulos.Testing;
+﻿// ReSharper disable All
 
-// ReSharper disable All
 namespace SimpleDomain.Tests
 {
+    using System;
+    using Modulos.Testing;
+
     public partial class V1
     {
         [ModelDefinition]

@@ -1,7 +1,7 @@
-﻿using System;
-
-namespace Modulos.Testing
+﻿namespace Modulos.Testing
 {
+    using System;
+
     public abstract class ScriptAttribute : Attribute
     {
         protected ScriptAttribute(string splitter)

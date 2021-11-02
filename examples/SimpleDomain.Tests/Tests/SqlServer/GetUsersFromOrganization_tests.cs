@@ -1,15 +1,15 @@
-using System.Linq;
-using System.Threading.Tasks;
-using FluentAssertions;
-using Modulos.Testing;
-using SimpleDomain.Logic;
-using Xunit;
-
 // ReSharper disable InconsistentNaming
 // ReSharper disable PossibleMultipleEnumeration
 
 namespace SimpleDomain.Tests.SqlServer
 {
+    using System.Linq;
+    using System.Threading.Tasks;
+    using FluentAssertions;
+    using Logic;
+    using Modulos.Testing;
+    using Xunit;
+
     [Collection(nameof(V2) + nameof(SqlServer))]
     public class GetUsersFromOrganization_tests
     {
@@ -26,7 +26,7 @@ namespace SimpleDomain.Tests.SqlServer
             await using var test = await _env.CreateTest<Test>();
 
             var functionality = test.Resolve<GetUsersFromOrganization>();
-         
+
             var users = await functionality.Execute(V2.Organizations.SuperCompany.OrganizationId)
                 .ConfigureAwait(false);
 

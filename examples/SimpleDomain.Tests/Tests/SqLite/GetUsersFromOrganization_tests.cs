@@ -1,12 +1,12 @@
-using System.Linq;
-using System.Threading.Tasks;
-using FluentAssertions;
-using Modulos.Testing;
-using SimpleDomain.Logic;
-using Xunit;
-
 namespace SimpleDomain.Tests.SqLite
 {
+    using System.Linq;
+    using System.Threading.Tasks;
+    using FluentAssertions;
+    using Logic;
+    using Modulos.Testing;
+    using Xunit;
+
     [Collection(nameof(V2) + nameof(SqLite))]
     public class GetUsersFromOrganizationTests
     {
@@ -23,7 +23,7 @@ namespace SimpleDomain.Tests.SqLite
             await using var test = await env.CreateTest<Test>();
 
             var functionality = test.Resolve<GetUsersFromOrganization>();
-         
+
             var users = await functionality.Execute(V2.Organizations.SuperCompany.OrganizationId)
                 .ConfigureAwait(false);
 

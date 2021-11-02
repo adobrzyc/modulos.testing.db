@@ -1,13 +1,13 @@
-﻿using System;
-using System.Threading.Tasks;
-using Microsoft.Extensions.DependencyInjection;
-
-// ReSharper disable MemberCanBePrivate.Global
+﻿// ReSharper disable MemberCanBePrivate.Global
 // ReSharper disable UnusedType.Global
 // ReSharper disable UnusedMember.Global
 
 namespace Modulos.Testing
 {
+    using System;
+    using System.Threading.Tasks;
+    using Microsoft.Extensions.DependencyInjection;
+
     public static class TestExtensions
     {
         public static Task<TContext> SeedDb<TContext>(this ITest test, Func<ISeedProvider, Task> setup = null)
@@ -15,9 +15,29 @@ namespace Modulos.Testing
         {
             return SeedDb<TContext>(test, async (provider, context) =>
             {
-                if(setup != null)
+                if (setup != null)
                     await setup(provider);
             });
+        }
+
+        public static async Task SeedDb(this ITest test, Func<ISeedProvider, Task> setup = null)
+        {
+            var seedProvider = test.GetRequiredService<ISeedProvider>();
+
+            if (setup != null)
+                await setup(seedProvider);
+
+            await seedProvider.Seed();
+        }
+
+        public static async Task SeedDb(this ITest test, Action<ISeedProvider> setup = null)
+        {
+            var seedProvider = test.GetRequiredService<ISeedProvider>();
+
+            if (setup != null)
+                setup(seedProvider);
+
+            await seedProvider.Seed();
         }
 
         public static async Task<TContext> SeedDb<TContext>(this ITest test, Func<ISeedProvider, TContext, Task> setup = null)

@@ -1,10 +1,11 @@
-﻿using System;
-using Modulos.Testing;
-using SimpleDomain.Db.Model;
+﻿// ReSharper disable All
 
-// ReSharper disable All
 namespace SimpleDomain.Tests
 {
+    using System;
+    using Db.Model;
+    using Modulos.Testing;
+
     public partial class V2
     {
         [ModelDefinition]
@@ -12,7 +13,8 @@ namespace SimpleDomain.Tests
         {
             [InlineData(OperationKind.Delete)] public static User TedSalesman => V1.RegularUsers.TedSalesman;
 
-            [InlineData] public static User RebeccaCold => new User
+            [InlineData]
+            public static User RebeccaCold => new User
             {
                 UserId = new Guid("495E4573-3A32-4250-AF8A-0E0D3807369C"),
                 Name = "Rebecca",

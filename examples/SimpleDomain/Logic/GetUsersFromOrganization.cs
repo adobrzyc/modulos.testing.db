@@ -1,13 +1,13 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.EntityFrameworkCore;
-using SimpleDomain.Db;
-using SimpleDomain.Db.Model;
-
-namespace SimpleDomain.Logic
+﻿namespace SimpleDomain.Logic
 {
+    using System;
+    using System.Collections.Generic;
+    using System.Linq;
+    using System.Threading.Tasks;
+    using Db;
+    using Db.Model;
+    using Microsoft.EntityFrameworkCore;
+
     public class GetUsersFromOrganization
     {
         private readonly Context db;
@@ -22,8 +22,8 @@ namespace SimpleDomain.Logic
             var users = await db.Departments
                 .Where(e => e.OrganizationId == organizationId)
                 .SelectMany(e => e.Users)
-                .Include(e=>e.Department)
-                .Include(e=>e.Department.Organization)
+                .Include(e => e.Department)
+                .Include(e => e.Department.Organization)
                 .ToArrayAsync()
                 .ConfigureAwait(false);
 

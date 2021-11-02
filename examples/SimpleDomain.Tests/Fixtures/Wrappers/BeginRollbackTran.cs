@@ -1,12 +1,12 @@
-﻿using System.Threading.Tasks;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Storage;
-using Modulos.Testing;
-
-// ReSharper disable ClassNeverInstantiated.Global
+﻿// ReSharper disable ClassNeverInstantiated.Global
 
 namespace SimpleDomain.Tests.Wrappers
 {
+    using System.Threading.Tasks;
+    using Microsoft.EntityFrameworkCore;
+    using Microsoft.EntityFrameworkCore.Storage;
+    using Modulos.Testing;
+
     public class BeginRollbackTran<TContext> : ITestWrapper
         where TContext : DbContext
     {

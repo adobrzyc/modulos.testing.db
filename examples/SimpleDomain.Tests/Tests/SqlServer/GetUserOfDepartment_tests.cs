@@ -1,12 +1,12 @@
-using System.Linq;
-using System.Threading.Tasks;
-using FluentAssertions;
-using Modulos.Testing;
-using SimpleDomain.Logic;
-using Xunit;
-
 namespace SimpleDomain.Tests.SqlServer
 {
+    using System.Linq;
+    using System.Threading.Tasks;
+    using FluentAssertions;
+    using Logic;
+    using Modulos.Testing;
+    using Xunit;
+
     [Collection(nameof(V2) + nameof(SqlServer))]
     public class GetUserOfDepartmentTests
     {

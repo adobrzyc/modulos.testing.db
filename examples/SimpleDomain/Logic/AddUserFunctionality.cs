@@ -1,10 +1,10 @@
-﻿using System;
-using System.Threading.Tasks;
-using SimpleDomain.Db;
-using SimpleDomain.Db.Model;
-
-namespace SimpleDomain.Logic
+﻿namespace SimpleDomain.Logic
 {
+    using System;
+    using System.Threading.Tasks;
+    using Db;
+    using Db.Model;
+
     public class AddUserFunctionality
     {
         private readonly Context db;

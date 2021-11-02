@@ -1,15 +1,15 @@
-using System;
-using FluentAssertions;
-using Microsoft.EntityFrameworkCore;
-using Moq;
-using Xunit;
-
 // ReSharper disable InconsistentNaming
 // ReSharper disable ClassNeverInstantiated.Local
 // ReSharper disable UnusedMember.Local
 
 namespace Modulos.Testing.EF.Tests
 {
+    using System;
+    using FluentAssertions;
+    using Microsoft.EntityFrameworkCore;
+    using Moq;
+    using Xunit;
+
     public class SeedProvider_tests
     {
         [Fact]
@@ -40,26 +40,23 @@ namespace Modulos.Testing.EF.Tests
                 );
         }
 
-       
+
         [ModelDefinition]
         private class Model1
         {
-            [InlineData]
-            public static User User1 => new User();
+            [Testing.InlineData] public static User User1 => new User();
         }
 
         [ModelDefinition]
         private class Model2
         {
-            [InlineData]
-            public static User User1 => new User();
+            [Testing.InlineData] public static User User1 => new User();
         }
 
         [ModelDefinition]
         private class Model1Model2
         {
-            [IncludeModel]
-            public static Type[] Include =
+            [IncludeModel] public static Type[] Include =
             {
                 typeof(Model1),
                 typeof(Model2)
@@ -70,41 +67,35 @@ namespace Modulos.Testing.EF.Tests
         [ModelDefinition]
         private class RootModel
         {
-            [InlineData]
-            public static User User1 => new User();
+            [IncludeModel] public static Type[] Include =
+            {
+                typeof(AnotherRootModel)
+            };
+
+            [Testing.InlineData] public static User User1 => new User();
 
             [ModelDefinition]
             public class NestedModel
             {
-                [InlineData]
-                public static User User2 => new User();
+                [Testing.InlineData] public static User User2 => new User();
             }
-
-            [IncludeModel]
-            public static Type[] Include =
-            {
-                typeof(AnotherRootModel)
-            };
         }
 
         [ModelDefinition]
         private class AnotherRootModel
         {
-            [InlineData]
-            public static User User3 => new User();
+            [Testing.InlineData] public static User User3 => new User();
 
             [ModelDefinition]
             public class AnotherNestedModel
             {
-                [InlineData]
-                public static User User4 => new User();
+                [Testing.InlineData] public static User User4 => new User();
             }
         }
 
 
         private class User
         {
-
         }
     }
 }

@@ -1,13 +1,13 @@
-﻿using Modulos.Testing;
-using SimpleDomain.Db.Model;
-
-// ReSharper disable ClassNeverInstantiated.Global
+﻿// ReSharper disable ClassNeverInstantiated.Global
 // ReSharper disable MemberCanBePrivate.Global
 // ReSharper disable UnusedMember.Global
 // ReSharper disable InconsistentNaming
 
 namespace SimpleDomain.Tests
 {
+    using Db.Model;
+    using Modulos.Testing;
+
     public partial class V2
     {
         [ModelDefinition]

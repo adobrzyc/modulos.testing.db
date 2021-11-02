@@ -1,15 +1,15 @@
-﻿using System;
-using System.Linq;
-using System.Linq.Expressions;
-using System.Reflection;
-
-// ReSharper disable UnusedMember.Global
+﻿// ReSharper disable UnusedMember.Global
 
 // ReSharper disable UnusedType.Global
 
 namespace Modulos.Testing
 {
-    public class ShallowCloner 
+    using System;
+    using System.Linq;
+    using System.Linq.Expressions;
+    using System.Reflection;
+
+    public class ShallowCloner
     {
         private readonly Func<object, object> cloneFunc;
 
@@ -17,7 +17,7 @@ namespace Modulos.Testing
         {
             var methodInfo = typeof(object).GetMethod("MemberwiseClone", BindingFlags.Instance | BindingFlags.NonPublic);
             var p = Expression.Parameter(typeof(object));
-            
+
             // ReSharper disable once AssignNullToNotNullAttribute
             var mce = Expression.Call(p, methodInfo);
             cloneFunc = Expression.Lambda<Func<object, object>>(mce, p).Compile();
@@ -38,13 +38,9 @@ namespace Modulos.Testing
                 if (propValue != null)
                 {
                     if (propValue is byte[] byteArray)
-                    {
                         property.SetValue(clone, byteArray.Clone());
-                    }
                     else
-                    {
                         property.SetValue(clone, null);
-                    }
                 }
             }
 

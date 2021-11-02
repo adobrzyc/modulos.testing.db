@@ -1,8 +1,8 @@
-﻿using Autofac;
-using SimpleDomain.Logic;
-
-namespace SimpleDomain.Modules
+﻿namespace SimpleDomain.Modules
 {
+    using Autofac;
+    using Logic;
+
     public class RegisterDependencies : Module
     {
         protected override void Load(ContainerBuilder builder)

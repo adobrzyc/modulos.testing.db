@@ -33,9 +33,7 @@ BEGIN
    SET @cnt = @cnt + 1;
 END;
 commit tran;";
-
             }
         }
-
     }
 }

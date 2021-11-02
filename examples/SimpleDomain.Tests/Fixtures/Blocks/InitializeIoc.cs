@@ -1,20 +1,20 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using System.Threading.Tasks;
-using Autofac;
-using Autofac.Extensions.DependencyInjection;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.DependencyInjection.Extensions;
-using Modulos.Testing;
-
-// ReSharper disable ClassNeverInstantiated.Global
+﻿// ReSharper disable ClassNeverInstantiated.Global
 
 namespace SimpleDomain.Tests.Blocks
 {
+    using System.Collections;
+    using System.Collections.Generic;
+    using System.Threading.Tasks;
+    using Autofac;
+    using Autofac.Extensions.DependencyInjection;
+    using Microsoft.Extensions.DependencyInjection;
+    using Microsoft.Extensions.DependencyInjection.Extensions;
+    using Modulos.Testing;
+
     public sealed class InitializeIoc : IBlock, IServiceCollection
     {
-        private readonly IServiceCollection internalCollection;
         public readonly ContainerBuilder Autofac;
+        private readonly IServiceCollection internalCollection;
 
         public InitializeIoc()
         {
@@ -26,13 +26,10 @@ namespace SimpleDomain.Tests.Blocks
         Task<BlockExecutionResult> IBlock.Execute(ITestEnvironment testEnv)
         {
             var sc = new ServiceCollection();
-            foreach (var serviceDescriptor in internalCollection)
-            {
-                sc.Add(serviceDescriptor);
-            }
+            foreach (var serviceDescriptor in internalCollection) sc.Add(serviceDescriptor);
 
             Autofac.Populate(sc);
-          
+
             var sp = new AutofacServiceProvider(Autofac.Build());
 
             testEnv.SetServiceProvider(sp);
@@ -56,7 +53,7 @@ namespace SimpleDomain.Tests.Blocks
 
         IEnumerator IEnumerable.GetEnumerator()
         {
-            return ((IEnumerable) internalCollection).GetEnumerator();
+            return ((IEnumerable)internalCollection).GetEnumerator();
         }
 
         void ICollection<ServiceDescriptor>.Add(ServiceDescriptor item)

@@ -1,8 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-
-namespace SimpleDomain.Db.Model
+﻿namespace SimpleDomain.Db.Model
 {
+    using System;
+    using System.Collections.Generic;
+
     public class Department
     {
         public Guid DepartmentId { get; set; }

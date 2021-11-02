@@ -1,15 +1,15 @@
-using System;
-using System.Threading.Tasks;
-using FluentAssertions;
-using Microsoft.EntityFrameworkCore;
-using Modulos.Testing;
-using Modulos.Testing.EF;
-using SimpleDomain.Db;
-using SimpleDomain.Logic;
-using Xunit;
-
 namespace SimpleDomain.Tests.SqlServer
 {
+    using System;
+    using System.Threading.Tasks;
+    using Db;
+    using FluentAssertions;
+    using Logic;
+    using Microsoft.EntityFrameworkCore;
+    using Modulos.Testing;
+    using Modulos.Testing.EF;
+    using Xunit;
+
     [Collection(nameof(V1) + nameof(SqlServer))]
     public class AddUserFunctionalityTests
     {
@@ -24,9 +24,9 @@ namespace SimpleDomain.Tests.SqlServer
         public async Task add_non_existing_user()
         {
             await using var test = await env.CreateTest<Test>();
-            
+
             var functionality = test.Resolve<AddUserFunctionality>();
-          
+
             var user = await functionality.CreateUser("John", "Good", V1.Departments.Sales.DepartmentId);
             user.Should().NotBeNull();
             user.Name.Should().Be("John");
